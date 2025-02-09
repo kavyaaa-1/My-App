@@ -45,6 +45,7 @@ h2{
 
 body {
   background-color: aliceblue;
+  
 }
 
 .outer-container {
@@ -74,22 +75,19 @@ body {
   }
 
 
-/* Clock Styling */
-.clock-container {
+/* date Styling */
+.date-container {
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 20px;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  padding: 10px;
   text-align: center;
-  width: 280px;
+  width:400px;
 }
 
-.clock {
-  font-size: 2.5rem;
+.date {
+  font-size: 3rem;
   font-weight: bold;
   color: #ca2974;
   font-family: "Coming Soon", serif;
@@ -102,7 +100,7 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   padding: 20px;
   margin: 20px;
-  max-width: 500px;
+  max-width: 1600px;
   width: 100%;
 }
 
@@ -115,7 +113,7 @@ body {
 
 .day {
   padding: 15px;
-  background: #e2e8f0;
+  background: #f6f6f6;
   border-radius: 8px;
   font-weight: bold;
   text-align: center;
@@ -124,16 +122,33 @@ body {
 }
 
 .day:hover {
-  background: #ca2974;
-  color: white;
+  background: rgb(193, 221, 246);
+  color: black;
   transform: scale(1.1);
   cursor: pointer;
 }
 
-/* Style for passed dates (crossed or strikethrough) */
 .past-date {
   text-decoration: line-through;  /* Strikethrough */
-  color: gray;  /* Gray color for past dates */
+  color: rgb(190, 188, 188);  /* Gray color for past dates */
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.past-date:hover {
+  color: rgb(190, 188, 188);  
+}
+/* Disabled Input and Button for Past Dates */
+.past-date .task-input,
+.past-date .add-btn {
+  background-color: #e2e2e2;
+  cursor: not-allowed;
+  color: #888;
+}
+
+.add-btn:disabled, .add-btn:disabled:hover {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .header {
@@ -142,4 +157,37 @@ body {
   color: white;
   font-family: "Coming Soon", serif;
   border-radius: 8px;
+}
+.input-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.task-input {
+  margin: 5px 0;
+  padding: 5px;
+  font-size: 14px;
+  font-family: "Coming Soon", serif;
+
+}
+
+.add-btn {
+  background: #ca2974;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: "Coming Soon", serif;
+  font-weight: bold;
+}
+
+.add-btn:hover {
+  background: #d53e6f;
+}
+
+.tasks {
+  margin-top: 10px;
+  font-size: 14px;
 }
