@@ -27,11 +27,19 @@ function displayDate() {
 setInterval(updateClock, 1000);
 
 // Function to Add Task
-function addTask(day) {
+async function addTask(day) {
     const taskInput = document.getElementById(`task-input-${day}`);
     const taskText = taskInput.value.trim();
 
     if (taskText) {
+        const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+
+        await fetch("http://localhost:5000/save-task", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({date, task: taskText}),
+        });
+
         const taskList = document.getElementById(`tasks-${day}`);
         const taskDiv = document.createElement("div");
         taskDiv.textContent = taskText;
@@ -40,6 +48,21 @@ function addTask(day) {
     } else {
         alert("Please enter a task!");
     }
+}
+
+async function loadTasks(day) {
+    const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+    
+    const response = await fetch(`http://localhost:5000/get-tasks/${date}`);
+    const data = await response.json();
+    
+    const taskList = document.getElementById(`tasks-${day}`);
+    taskList.innerHTML = ""; // Clear previous tasks
+    data.tasks.forEach(task => {
+        const taskDiv = document.createElement("div");
+        taskDiv.textContent = task;
+        taskList.appendChild(taskDiv);
+    });
 }
 
 // Function to Generate Calendar
@@ -78,8 +101,6 @@ function generateCalendar() {
         
         // Mark past dates with a cross
         const date = new Date(year, month, i);
-        console.log("date", date);
-        console.log(now);
         if (date < now) {
             div.classList.add("past-date");
         }
@@ -95,6 +116,8 @@ function generateCalendar() {
         
         div.appendChild(taskInputContainer);
         calendar.appendChild(div);
+
+        loadTasks(i);
     }
 
     // Add event listeners for "Add" buttons

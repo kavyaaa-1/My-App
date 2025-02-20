@@ -92,27 +92,28 @@ body {
   color: #ca2974;
   font-family: "Coming Soon", serif;
 }
-
-/* Calendar Styling */
+/* Calendar Container with horizontal scrolling on smaller screens */
 .calendar-container {
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   padding: 20px;
-  margin: 20px;
-  max-width: 1600px;
-  width: 100%;
+  margin: 20px ;
+  max-width: 100%;
+  overflow-x: auto;  /* Allow horizontal scroll if content overflows */
 }
 
+/* Calendar grid with 7 columns always */
 .calendar {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, 1fr);  /* Always 7 columns */
   gap: 10px;
-  padding: 20px;
+  padding: 15px;
 }
 
+/* Day cell styling */
 .day {
-  padding: 15px;
+  padding: 8px;
   background: #f6f6f6;
   border-radius: 8px;
   font-weight: bold;
@@ -129,15 +130,16 @@ body {
 }
 
 .past-date {
-  text-decoration: line-through;  /* Strikethrough */
-  color: rgb(190, 188, 188);  /* Gray color for past dates */
+  text-decoration: line-through;
+  color: rgb(190, 188, 188);
   background-color: #f0f0f0;
   cursor: not-allowed;
 }
 
 .past-date:hover {
-  color: rgb(190, 188, 188);  
+  color: rgb(190, 188, 188);
 }
+
 /* Disabled Input and Button for Past Dates */
 .past-date .task-input,
 .past-date .add-btn {
@@ -158,6 +160,7 @@ body {
   font-family: "Coming Soon", serif;
   border-radius: 8px;
 }
+
 .input-container {
   display: flex;
   flex-direction: column;
@@ -169,14 +172,13 @@ body {
   padding: 5px;
   font-size: 14px;
   font-family: "Coming Soon", serif;
-
 }
 
 .add-btn {
   background: #ca2974;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 3px 6px;
   cursor: pointer;
   font-size: 14px;
   font-family: "Coming Soon", serif;
@@ -190,4 +192,21 @@ body {
 .tasks {
   margin-top: 10px;
   font-size: 14px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1400px) {
+  .day {
+    padding: 8px;
+    font-size: 1rem;
+  }
+  .task-input{
+    font-size: 0.8rem;
+    padding: 3px 4px;
+  }
+
+  .add-btn {
+    font-size: 1rem;
+    padding: 3px 4px;
+  }
 }
