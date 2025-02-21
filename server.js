@@ -27,8 +27,11 @@ app.post("/save-task", async(req, res) => {
     }
 
     try {
+        //Retrieves any existing tasks for that date from Redis
         let tasks = await client.get(`task:${date}`);
+        //Parses the tasks (if any) or starts with an empty list.
         tasks = tasks ? JSON.parse(tasks) : [];
+        //Adds the new task to the list.
         tasks.push(task);
 
         await client.set(`task:${date}`, JSON.stringify(tasks));

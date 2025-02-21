@@ -1,8 +1,9 @@
-import { loadNavBar } from "./common.js";
+import { loadNavBar , displayDate } from "./common.js";
 
 
 document.addEventListener("DOMContentLoaded", async function() {
   await loadNavBar();
+  displayDate();
   getJoke();
   getRandomAdvice();
   getRandomEvent();

@@ -1,30 +1,21 @@
-import { loadNavBar } from "./common.js";
+import { loadNavBar, displayDate } from "./common.js";
 
 document.addEventListener("DOMContentLoaded", async function() {
-    displayDate();
     generateCalendar(); 
     await loadNavBar(); 
+    displayDate();
 });
 
-// Function to Update Clock Every Second
 // function updateClock() {
 //     const now = new Date();
 //     const hours = String(now.getHours()).padStart(2, '0');
 //     const minutes = String(now.getMinutes()).padStart(2, '0');
 //     const seconds = String(now.getSeconds()).padStart(2, '0');
 //     document.getElementById("clock").innerText = `${hours}:${minutes}:${seconds}`;
-// }
-// Function to Update Clock Every Second
-function displayDate() {
-    const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    document.getElementById("date").innerText = `${monthsOfYear[month]} ${year}`;
-}
+// // }
 
-// Update the clock every second
-setInterval(updateClock, 1000);
+// // Update the clock every second
+// setInterval(updateClock, 1000);
 
 // Function to Add Task
 async function addTask(day) {
