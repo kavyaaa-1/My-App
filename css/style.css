@@ -1,3 +1,8 @@
+
+body {
+  background-color: #f0f8ff;
+}
+
 h1{
     font-family: "Oswald", serif;  font-weight: 400;
     font-style: normal;
@@ -11,13 +16,14 @@ h2{
 
 .nav-bar {
   background-color: #ffffff;
-  padding: 1rem;
+  padding: 0.2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .nav-bar ul {
   list-style: none;
   display: flex;
+  align-items: center; 
   gap: 2rem;
   padding: 1 0 0 0;
   margin: 0;
@@ -42,9 +48,8 @@ h2{
 .nav-bar a:hover {
   color: #ca2974;
 }
-
-body {
-  background-color: aliceblue;
+.nav-bar ul li:last-child {
+  margin-left: auto; /* Pushes last item (Fun image) to the right */
 }
 
 .outer-container {
@@ -74,14 +79,19 @@ body {
 }
 
 
-/* date Styling */
+.date-container {
+  display: flex;
+  align-items: center; 
+  height: 100px; 
+}
 
 .date {
-  font-size: 2rem;
+  font-size: 3rem;
   font-weight: bold;
   color: #ca2974;
   font-family: "Coming Soon", serif;
 }
+
 /* Calendar Container with horizontal scrolling on smaller screens */
 .calendar-container {
   background: white;
@@ -199,4 +209,55 @@ body {
     font-size: 1rem;
     padding: 3px 4px;
   }
+}
+
+@keyframes wobble {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  50% { transform: rotate(-5deg); }
+  75% { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+}
+
+#fun-icon {
+  animation: wobble 1s ease-in-out infinite;
+  padding-right: 20px; 
+}
+
+.task-icon {
+  width: 20px;  /* Set width to 50px */
+  height: 20px; /* Set height to 50px */
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.task-icon:hover {
+  transform: scale(1.1); /* Slight zoom effect on hover */
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+  margin-top: 5px;
+}
+.delete-btn {
+  margin-left: auto; /* Push delete icon to the extreme right */
+}
+
+.task-item .completed {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.task-icon {
+  width: 20px;  /* Adjust based on your icon size */
+  height: 20px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.task-icon:hover {
+  transform: scale(1.1);
 }

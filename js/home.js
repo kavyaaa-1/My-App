@@ -1,122 +1,175 @@
 import { loadNavBar, displayDate } from "./common.js";
 
 document.addEventListener("DOMContentLoaded", async function() {
-    generateCalendar(); 
-    await loadNavBar(); 
-    displayDate();
+  generateCalendar(); 
+  await loadNavBar(); 
+  displayDate();
 });
 
-// function updateClock() {
-//     const now = new Date();
-//     const hours = String(now.getHours()).padStart(2, '0');
-//     const minutes = String(now.getMinutes()).padStart(2, '0');
-//     const seconds = String(now.getSeconds()).padStart(2, '0');
-//     document.getElementById("clock").innerText = `${hours}:${minutes}:${seconds}`;
-// // }
+// Function to display tasks on the UI
+function displayTasks(day, taskText, status) {
+  const taskList = document.getElementById(`tasks-${day}`);
 
-// // Update the clock every second
-// setInterval(updateClock, 1000);
+  // Create container for the task
+  const taskDiv = document.createElement("div");
+  taskDiv.classList.add("task-item");
 
-// Function to Add Task
-async function addTask(day) {
-    const taskInput = document.getElementById(`task-input-${day}`);
-    const taskText = taskInput.value.trim();
+  // Create checkbox icon (using image here)
+  const checkbox = document.createElement("img");
+  checkbox.src = status ? "../images/checked_icon.png" : "../images/unchecked_icon.png";
+  checkbox.alt = status ? "Complete Task" : "Incomplete Task";
+  checkbox.classList.add("task-icon");
 
-    if (taskText) {
-        const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+  // Create the span for task text
+  const taskSpan = document.createElement("span");
+  taskSpan.textContent = taskText;
+  if (status) taskSpan.classList.add("completed");
 
-        await fetch("http://localhost:5000/save-task", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({date, task: taskText}),
-        });
+  // Event listener for toggling task completion
+  checkbox.addEventListener("click", async function () {
+    status = !status; // Toggle state
+    checkbox.src = status ? "../images/checked_icon.png" : "../images/unchecked_icon.png";
+    taskSpan.classList.toggle("completed", status);
 
-        const taskList = document.getElementById(`tasks-${day}`);
-        const taskDiv = document.createElement("div");
-        taskDiv.textContent = taskText;
-        taskList.appendChild(taskDiv);
-        taskInput.value = ""; // Clear the input after adding the task
-    } else {
-        alert("Please enter a task!");
-    }
-}
-
-async function loadTasks(day) {
+    // Compute the date string in the same format used when saving the task
     const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
-    
-    const response = await fetch(`http://localhost:5000/get-tasks/${date}`);
-    const data = await response.json();
-    
-    const taskList = document.getElementById(`tasks-${day}`);
-    taskList.innerHTML = ""; // Clear previous tasks
-    data.tasks.forEach(task => {
-        const taskDiv = document.createElement("div");
-        taskDiv.textContent = task;
-        taskList.appendChild(taskDiv);
+
+    // Update task completion in backend using PATCH
+    await fetch("http://localhost:5000/update-task", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date, task: taskText, status }),
     });
+  });
+
+  // Delete button (endpoint not defined in your server code yet)
+  const deleteBtn = document.createElement("img");
+  deleteBtn.src = "../images/remove_icon.png";
+  deleteBtn.alt = "Delete Task";
+  deleteBtn.classList.add("task-icon", "delete-btn");
+  deleteBtn.addEventListener("click", async function () {
+    const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+    const response = await fetch("http://localhost:5000/delete-task", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date, task: taskText }),
+    });
+    if (response.ok) {
+        taskDiv.remove();
+      } else {
+        alert("Failed to delete task");
+      } // Remove task from UI
+  });
+
+  // Append elements to task container
+  taskDiv.appendChild(checkbox);
+  taskDiv.appendChild(taskSpan);
+  taskDiv.appendChild(deleteBtn);
+  taskList.appendChild(taskDiv);
 }
 
-// Function to Generate Calendar
+// Function to add a new task
+async function addTask(day) {
+  const taskInput = document.getElementById(`task-input-${day}`);
+  const taskText = taskInput.value.trim();
+
+  if (taskText) {
+    const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+
+    const response = await fetch("http://localhost:5000/save-task", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // Send status as false (meaning not completed)
+      body: JSON.stringify({ date, task: taskText, status: false }),
+    });
+    
+    if (response.ok) {
+      displayTasks(day, taskText, false);
+      taskInput.value = ""; // Clear input after adding task
+    } else {
+      alert("Error in saving task");
+    }
+  } else {
+    alert("Please enter a task!");
+  }
+}
+
+// Function to load tasks for a day
+async function loadTasks(day) {
+  const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+  
+  const response = await fetch(`http://localhost:5000/get-tasks/${date}`);
+  const data = await response.json();
+  
+  const taskList = document.getElementById(`tasks-${day}`); 
+  taskList.innerHTML = ""; // Clear previous tasks
+  // Ensure we use each task object's properties correctly
+  data.tasks.forEach(taskObj => {
+    displayTasks(day, taskObj.task, taskObj.status);
+  });
+}
+
+// Function to generate the calendar UI
 function generateCalendar() {
-    const calendar = document.getElementById("calendar");
-    calendar.innerHTML = "";
-    const now = new Date();
-    now.setHours(0,0,0,0)
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const firstDay = new Date(year, month, 1).getDay();
-    const lastDate = new Date(year, month + 1, 0).getDate();
+  const calendar = document.getElementById("calendar");
+  calendar.innerHTML = "";
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month + 1, 0).getDate();
 
-    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-    // Add Headers (Days of the Week)
-    daysOfWeek.forEach(day => {
-        const div = document.createElement("div");
-        div.textContent = day;
-        div.classList.add("day", "header");
-        calendar.appendChild(div);
-    });
+  // Add headers for days of the week
+  daysOfWeek.forEach(day => {
+    const div = document.createElement("div");
+    div.textContent = day;
+    div.classList.add("day", "header");
+    calendar.appendChild(div);
+  });
 
-    // Empty Slots for Days Before 1st of the Month
-    for (let i = 0; i < firstDay; i++) {
-        const emptyDiv = document.createElement("div");
-        emptyDiv.classList.add("day");
-        calendar.appendChild(emptyDiv);
+  // Create empty slots for days before the 1st of the month
+  for (let i = 0; i < firstDay; i++) {
+    const emptyDiv = document.createElement("div");
+    emptyDiv.classList.add("day");
+    calendar.appendChild(emptyDiv);
+  }
+
+  // Create each day of the month
+  for (let i = 1; i <= lastDate; i++) {
+    const div = document.createElement("div");
+    div.textContent = i;
+    div.classList.add("day");
+    
+    // Mark past dates visually if needed
+    const date = new Date(year, month, i);
+    if (date < now) {
+      div.classList.add("past-date");
     }
 
-    // Fill Calendar with Dates
-    for (let i = 1; i <= lastDate; i++) {
-        const div = document.createElement("div");
-        div.textContent = i;
-        div.classList.add("day");
-        
-        // Mark past dates with a cross
-        const date = new Date(year, month, i);
-        if (date < now) {
-            div.classList.add("past-date");
-        }
+    // Add task input and container for each day
+    const taskInputContainer = document.createElement("div");
+    taskInputContainer.classList.add("input-container");
+    taskInputContainer.innerHTML = `
+      <input type="text" class="task-input" id="task-input-${i}" placeholder="Enter task" ${date < now ? "disabled" : ""}>
+      <button class="add-btn" data-day="${i}" ${date < now ? "disabled" : ""}>Add</button>
+      <div class="tasks" id="tasks-${i}"></div>
+    `;
+    
+    div.appendChild(taskInputContainer);
+    calendar.appendChild(div);
 
-        // Add task input for each day
-        const taskInputContainer = document.createElement("div");
-        taskInputContainer.classList.add("input-container");
-        taskInputContainer.innerHTML = `
-            <input type="text" class="task-input" id="task-input-${i}" placeholder="Enter task" ${date < now ? "disabled" : ""}>
-            <button class="add-btn" data-day="${i}" ${date < now ? "disabled" : ""}>Add</button>
-            <div class="tasks" id="tasks-${i}"></div>
-        `;
-        
-        div.appendChild(taskInputContainer);
-        calendar.appendChild(div);
+    loadTasks(i);
+  }
 
-        loadTasks(i);
-    }
-
-    // Add event listeners for "Add" buttons
-    const buttons = document.querySelectorAll('.add-btn');
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            const day = this.getAttribute('data-day');
-            addTask(day);
-        });
+  // Attach event listeners to "Add" buttons
+  const buttons = document.querySelectorAll('.add-btn');
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      const day = this.getAttribute('data-day');
+      addTask(day);
     });
+  });
 }
