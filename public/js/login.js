@@ -5,7 +5,7 @@ async function validateLogin(event) {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    const response = await fetch("http://localhost:5000/api/login", {
+    const response = await fetch("https://planit-backend-drmi.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -23,7 +23,7 @@ async function validateLogin(event) {
 }
 
 async function checkLoginStatus() { 
-    const response = await fetch("http://localhost:5000/api/check-auth", {credentials: "include"});
+    const response = await fetch("https://planit-backend-drmi.onrender.com/api/check-auth", {credentials: "include"});
     const data = await response.json();
 
     if(data.loggin){

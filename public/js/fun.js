@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", async function() {
   displayDate();
   getJoke();
   getRandomAdvice();
-  getRandomEvent();
 });
 
 

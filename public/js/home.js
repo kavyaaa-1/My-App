@@ -16,7 +16,7 @@ function displayTasks(day, taskText, status) {
 
   // Create checkbox icon (using image here)
   const checkbox = document.createElement("img");
-  checkbox.src = status ? "../images/checked_icon.png" : "../images/unchecked_icon.png";
+  checkbox.src = status ? "./images/checked_icon.png" : "./images/unchecked_icon.png";
   checkbox.alt = status ? "Complete Task" : "Incomplete Task";
   checkbox.classList.add("task-icon");
 
@@ -28,14 +28,14 @@ function displayTasks(day, taskText, status) {
   // Event listener for toggling task completion
   checkbox.addEventListener("click", async function () {
     status = !status; // Toggle state
-    checkbox.src = status ? "../images/checked_icon.png" : "../images/unchecked_icon.png";
+    checkbox.src = status ? "./images/checked_icon.png" : "./images/unchecked_icon.png";
     taskSpan.classList.toggle("completed", status);
 
     // Compute the date string in the same format used when saving the task
     const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
 
     // Update task completion in backend using PATCH
-    await fetch("http://localhost:5000/update-task", {
+    await fetch("https://planit-backend-drmi.onrender.com/update-task", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ date, task: taskText, status }),
@@ -44,12 +44,12 @@ function displayTasks(day, taskText, status) {
 
   // Delete button (endpoint not defined in your server code yet)
   const deleteBtn = document.createElement("img");
-  deleteBtn.src = "../images/remove_icon.png";
+  deleteBtn.src = "./images/remove_icon.png";
   deleteBtn.alt = "Delete Task";
   deleteBtn.classList.add("task-icon", "delete-btn");
   deleteBtn.addEventListener("click", async function () {
     const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
-    const response = await fetch("http://localhost:5000/delete-task", {
+    const response = await fetch("https://planit-backend-drmi.onrender.com/delete-task", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ date, task: taskText }),
@@ -76,7 +76,7 @@ async function addTask(day) {
   if (taskText) {
     const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
 
-    const response = await fetch("http://localhost:5000/save-task", {
+    const response = await fetch("https://planit-backend-drmi.onrender.com/save-task", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       // Send status as false (meaning not completed)
@@ -98,7 +98,7 @@ async function addTask(day) {
 async function loadTasks(day) {
   const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
   
-  const response = await fetch(`http://localhost:5000/get-tasks/${date}`);
+  const response = await fetch(`https://planit-backend-drmi.onrender.com/get-tasks/${date}`);
   const data = await response.json();
   
   const taskList = document.getElementById(`tasks-${day}`); 
