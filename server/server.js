@@ -112,12 +112,13 @@ app.delete("/delete-task", async (req, res) => {
 })
 
 
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes window
-  max: 5, // Maximum of 5 requests per IP in this window
-  message: "Too many login attempts. Try again later.",
-});
+// const loginLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes window
+//   max: 5, // Maximum of 5 requests per IP in this window
+//   message: "Too many login attempts. Try again later.",
+// });
 
-app.use("/api", loginLimiter, router);
+// app.use("/api", loginLimiter, router);
+app.use("/api", router);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log("Server running on", PORT));
