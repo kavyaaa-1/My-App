@@ -1,10 +1,20 @@
 import { loadNavBar, displayDate } from "./common.js";
 
 document.addEventListener("DOMContentLoaded", async function() {
+  checkLoginStatus();
   generateCalendar(); 
   await loadNavBar(); 
   displayDate();
 });
+
+async function checkLoginStatus() { 
+  const response = await fetch("https://planit-backend-drmi.onrender.com/api/check-auth", {credentials: "include"});
+  const data = await response.json();
+  console.log("checking login");
+  if(!data.loggedIn){
+      window.location.href = "index.html";
+  }
+}
 
 // Function to display tasks on the UI
 function displayTasks(day, taskText, status) {

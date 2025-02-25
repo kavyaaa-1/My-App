@@ -25,8 +25,8 @@ async function validateLogin(event) {
 async function checkLoginStatus() { 
     const response = await fetch("https://planit-backend-drmi.onrender.com/api/check-auth", {credentials: "include"});
     const data = await response.json();
-
-    if(data.loggin){
+    console.log("checking login");
+    if(data.loggedIn){
         window.location.href = "home.html";
     }
 }
