@@ -12,8 +12,10 @@ app.use(helmet());
 app.use(json());
 
 app.use(cors({
-  origin: "https://planit-uvwf.onrender.com/",  // Allow requests from this frontend
-  credentials: true                 // Allow cookies, sessions, and authentication
+  origin: "https://planit-uvwf.onrender.com",  // Set correct frontend URL
+  credentials: true,  // Allow cookies and authentication
+  methods: "GET,POST,PUT,DELETE",  // Allowed methods
+  allowedHeaders: "Content-Type,Authorization"  // Allowed headers
 }));
 
 // Save Task Endpoint
