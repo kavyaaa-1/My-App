@@ -12,8 +12,8 @@ app.use(helmet());
 app.use(json());
 
 app.use(cors({
-  origin: "*",  
-  credentials: true              
+  origin: "*",  // Allow requests from this frontend
+  credentials: true                 // Allow cookies, sessions, and authentication
 }));
 
 // Save Task Endpoint
