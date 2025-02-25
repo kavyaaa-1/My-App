@@ -12,7 +12,7 @@ app.use(helmet());
 app.use(json());
 
 app.use(cors({
-  origin: "*",  // Allow requests from this frontend
+  origin: "https://planit-uvwf.onrender.com/",  // Allow requests from this frontend
   credentials: true                 // Allow cookies, sessions, and authentication
 }));
 
