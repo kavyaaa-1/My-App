@@ -1,11 +1,15 @@
 import { loadNavBar, displayDate } from "./common.js";
 
 document.addEventListener("DOMContentLoaded", async function() {
-  checkLoginStatus();
+  // checkLoginStatus();
   generateCalendar(); 
   await loadNavBar(); 
   displayDate();
 });
+document.getElementById("toggle-tasks").addEventListener("change", function () {
+  generateCalendar(); 
+});
+
 
 async function checkLoginStatus() { 
   const response = await fetch("https://planit-backend-drmi.onrender.com/api/check-auth", {credentials: "include"});
@@ -17,71 +21,147 @@ async function checkLoginStatus() {
 }
 
 // Function to display tasks on the UI
-function displayTasks(day, taskText, status) {
+// function displayTasks(day, taskText, status) {
+//   const taskList = document.getElementById(`tasks-${day}`);
+
+//   // Create container for the task
+//   const taskDiv = document.createElement("div");
+//   taskDiv.classList.add("task-item");
+
+//   // Create checkbox icon (using image here)
+//   const checkbox = document.createElement("img");
+//   checkbox.src = status ? "./images/checked_icon.png" : "./images/unchecked_icon.png";
+//   checkbox.alt = status ? "Complete Task" : "Incomplete Task";
+//   checkbox.classList.add("task-icon");
+
+//   // Create the span for task text
+//   const taskSpan = document.createElement("span");
+//   taskSpan.textContent = taskText;
+//   if (status) taskSpan.classList.add("completed");
+
+//   // Event listener for toggling task completion
+//   checkbox.addEventListener("click", async function () {
+//     status = !status; // Toggle state
+//     checkbox.src = status ? "./images/checked_icon.png" : "./images/unchecked_icon.png";
+//     taskSpan.classList.toggle("completed", status);
+
+//     // Compute the date string in the same format used when saving the task
+//     const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+
+//     // Update task completion in backend using PATCH
+//     await fetch("http://127.0.0.1:5000/update-task", {
+//       method: "PATCH",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ date, task: taskText, status }),
+//     });
+//   });
+
+//   const deleteBtn = document.createElement("img");
+//   deleteBtn.src = "./images/remove_icon.png";
+//   deleteBtn.alt = "Delete Task";
+//   deleteBtn.classList.add("task-icon", "delete-btn");
+//   deleteBtn.addEventListener("click", async function () {
+//     const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+//     const response = await fetch("http://127.0.0.1:5000/delete-task", {
+//       method: "DELETE",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ date, task: taskText }),
+//     });
+//     if (response.ok) {
+//         taskDiv.remove();
+//       } else {
+//         alert("Failed to delete task");
+//       } // Remove task from UI
+//   });
+
+//   // Append elements to task container
+//   taskDiv.appendChild(checkbox);
+//   taskDiv.appendChild(taskSpan);
+//   taskDiv.appendChild(deleteBtn);
+//   taskList.appendChild(taskDiv);
+// }
+
+function displayTasks(day, taskText, status, taskOwner) {
+  const player = localStorage.getItem("username"); 
+  const isOwner = taskOwner === player; // Check if task belongs to the user
+
   const taskList = document.getElementById(`tasks-${day}`);
 
-  // Create container for the task
+  // Task container
   const taskDiv = document.createElement("div");
   taskDiv.classList.add("task-item");
 
-  // Create checkbox icon (using image here)
+  // Checkbox
   const checkbox = document.createElement("img");
   checkbox.src = status ? "./images/checked_icon.png" : "./images/unchecked_icon.png";
   checkbox.alt = status ? "Complete Task" : "Incomplete Task";
   checkbox.classList.add("task-icon");
 
-  // Create the span for task text
+  // Task Text
   const taskSpan = document.createElement("span");
   taskSpan.textContent = taskText;
   if (status) taskSpan.classList.add("completed");
 
-  // Event listener for toggling task completion
-  checkbox.addEventListener("click", async function () {
-    status = !status; // Toggle state
-    checkbox.src = status ? "./images/checked_icon.png" : "./images/unchecked_icon.png";
-    taskSpan.classList.toggle("completed", status);
+  if (isOwner) {
+    checkbox.addEventListener("click", async function () {
+      status = !status;
+      checkbox.src = status ? "./images/checked_icon.png" : "./images/unchecked_icon.png";
+      taskSpan.classList.toggle("completed", status);
 
-    // Compute the date string in the same format used when saving the task
-    const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+      const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
 
-    // Update task completion in backend using PATCH
-    await fetch("https://planit-backend-drmi.onrender.com/update-task", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ date, task: taskText, status }),
+      await fetch("https://planit-backend-drmi.onrender.com/update-task", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date, task: taskText, status, player }),
+      });
+
+      let today = new Date().toISOString().split("T")[0];
+      localStorage.removeItem("popup-shown-" + today);      
+      checkTaskCompletion();
     });
-  });
+  } else {
+    checkbox.style.opacity = "0.3";
+  }
 
-  // Delete button (endpoint not defined in your server code yet)
   const deleteBtn = document.createElement("img");
-  deleteBtn.src = "./images/remove_icon.png";
-  deleteBtn.alt = "Delete Task";
-  deleteBtn.classList.add("task-icon", "delete-btn");
-  deleteBtn.addEventListener("click", async function () {
-    const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
-    const response = await fetch("https://planit-backend-drmi.onrender.com/delete-task", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ date, task: taskText }),
-    });
-    if (response.ok) {
+    deleteBtn.src = "./images/remove_icon.png";
+    deleteBtn.alt = "Delete Task";
+    deleteBtn.classList.add("task-icon", "delete-btn");
+  // Delete Button (Only for Owner)
+  if (isOwner) {
+    deleteBtn.addEventListener("click", async function () {
+      const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+      const response = await fetch("https://planit-backend-drmi.onrender.com/delete-task", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date, task: taskText, player }),
+      });
+      if (response.ok) {
         taskDiv.remove();
       } else {
         alert("Failed to delete task");
-      } // Remove task from UI
-  });
+      }
+    });
+
+  }else {
+    deleteBtn.style.opacity = "0.3"; 
+  }
 
   // Append elements to task container
   taskDiv.appendChild(checkbox);
   taskDiv.appendChild(taskSpan);
-  taskDiv.appendChild(deleteBtn);
   taskList.appendChild(taskDiv);
+  taskDiv.appendChild(deleteBtn);
+
 }
+
 
 // Function to add a new task
 async function addTask(day) {
   const taskInput = document.getElementById(`task-input-${day}`);
   const taskText = taskInput.value.trim();
+  const player = localStorage.getItem("username"); 
 
   if (taskText) {
     const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
@@ -89,13 +169,14 @@ async function addTask(day) {
     const response = await fetch("https://planit-backend-drmi.onrender.com/save-task", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      // Send status as false (meaning not completed)
-      body: JSON.stringify({ date, task: taskText, status: false }),
+      body: JSON.stringify({ date, task: taskText, status: false , player: player}),
     });
     
     if (response.ok) {
       displayTasks(day, taskText, false);
       taskInput.value = ""; // Clear input after adding task
+      let today = new Date().toISOString().split("T")[0];
+      localStorage.removeItem("popup-shown-" + today);
     } else {
       alert("Error in saving task");
     }
@@ -105,19 +186,45 @@ async function addTask(day) {
 }
 
 // Function to load tasks for a day
+// async function loadTasks(day) {
+//   const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
+  
+//   const response = await fetch(`http://127.0.0.1:5000/get-tasks/${date}`);
+//   const data = await response.json();
+//   const taskList = document.getElementById(`tasks-${day}`); 
+//   taskList.innerHTML = ""; // Clear previous tasks
+//   // Ensure we use each task object's properties correctly
+//   data.tasks.forEach(taskObj => {
+//     displayTasks(day, taskObj.task, taskObj.status);
+//   });
+// }
 async function loadTasks(day) {
   const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
-  
+  const player = localStorage.getItem("username"); // Get current user
+  const showMine = document.getElementById("toggle-tasks").checked;
+
   const response = await fetch(`https://planit-backend-drmi.onrender.com/get-tasks/${date}`);
   const data = await response.json();
   
-  const taskList = document.getElementById(`tasks-${day}`); 
+  const taskList = document.getElementById(`tasks-${day}`);
   taskList.innerHTML = ""; // Clear previous tasks
-  // Ensure we use each task object's properties correctly
+
   data.tasks.forEach(taskObj => {
-    displayTasks(day, taskObj.task, taskObj.status);
+    // Show only tasks based on toggle
+    if ((showMine && taskObj.player === player) || (!showMine && taskObj.player !== player)) {
+      displayTasks(day, taskObj.task, taskObj.status, taskObj.player);
+    }
   });
+  // ✅ Check task completion **only if loading today's tasks**
+  const today = new Date();
+  const todayDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  if (date === todayDate) {
+    setTimeout(() => checkTaskCompletion(day), 500); // Slight delay to allow DOM update
+  }
+  // Update the toggle label text
+  document.getElementById("toggle-label").textContent = showMine ? "My Tasks" : "Other's Tasks";
 }
+
 
 // Function to generate the calendar UI
 function generateCalendar() {
@@ -182,4 +289,93 @@ function generateCalendar() {
       addTask(day);
     });
   });
+}
+
+
+function showPopup() {
+  console.log("Showing popup...");
+
+  // Create overlay
+  const overlay = document.createElement("div");
+  overlay.id = "popup-overlay";
+  overlay.classList.add("popup-overlay");
+
+  // Create popup container
+  const popup = document.createElement("div");
+  popup.id = "celebration-popup";
+  popup.classList.add("popup");
+
+  const messages = [
+    "🔥 Both of you actually finished everything? Who are you and what have you done with my humans? 🤯",
+    "🚀 Mission accomplished! Now, who's making the snacks? 🍕",
+    "🏆 Productivity power couple unlocked! 😎",
+    "💯 No more tasks left?! Okay, who's hacking the system? 🧐",
+    "🎭 You both worked hard! Now go argue over AUR BTA. 🍿",
+    "🤝 Dynamic duo strikes again! Are you sure you're not superheroes? 🦸‍♂️🦸‍♀️",
+    "🛑 STOP! You’re making the rest of us look bad. Take a break! 😆",
+    "🎯 Boom! Productivity on max level. Now, let’s pretend we did this effortlessly. 😎",
+    "🎶 ‘Cause you had a productive daaaay… and it feeeeels so good! 🎵",
+    "🍕 Task completion achieved. Now, pizza or ice cream? Kya dila rahe ho? 😏"
+  ];
+
+  let randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
+  // Add content inside popup
+  popup.innerHTML = `
+  <div class="popup-content">
+      <h2>Everything done !!</h2>
+      <p>${randomMessage}</p>
+      <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXZld3N3Yzg1OW5pYzZ2ZTg4dDhudnRlc2NjYzhnampiNWwwMDVpZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/P5CaMAKnBwZgBEOlij/giphy.gif" alt="Celebration GIF">
+      <div class="popup-button-container">
+          <button id="close-popup">Awesome</button>
+      </div>
+  </div>
+`;
+
+
+  // Append elements to body
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+
+  // // 🎊 CONFETTI EFFECT - More fun!
+  // setTimeout(() => {
+  //   confetti({
+  //     particleCount: 150,
+  //     spread: 80,
+  //     startVelocity: 50,
+  //     scalar: 1.2,
+  //     origin: { y: 0.7 }
+  //   });
+  // }, 300); // Small delay for better effect
+
+  // Close button event
+  document.getElementById("close-popup").addEventListener("click", function() {
+    document.body.removeChild(popup);
+    document.body.removeChild(overlay);
+    let today = new Date().toISOString().split("T")[0];
+    localStorage.setItem("popup-shown-" + today, "true");
+  });
+}
+
+// Function to check if all tasks are completed
+function checkTaskCompletion(date) {
+  console.log("Checking if all today's tasks are completed...");
+  
+  let tasks = document.querySelectorAll(`#tasks-${date} .task-item`); 
+  console.log(tasks);
+  if (tasks.length === 0) return; // If no tasks today, do nothing
+
+  let allCompleted = Array.from(tasks).every(task => 
+    task.querySelector("span").classList.contains("completed")
+  );
+
+  if (allCompleted) {
+    console.log("All today's tasks completed!");
+    let today = new Date().toISOString().split("T")[0];
+    let popupShown = localStorage.getItem("popup-shown-" + today);
+
+    if (!popupShown) {
+      showPopup();
+    }
+  }
 }

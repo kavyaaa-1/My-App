@@ -12,7 +12,7 @@ app.use(helmet());
 app.use(json());
 
 app.use(cors({
-  origin: "https://planit-uvwf.onrender.com",  // Set correct frontend URL
+  origin:"https://planit-uvwf.onrender.com",
   credentials: true,  // Allow cookies and authentication
   methods: "GET,POST,PATCH,DELETE",  // Allowed methods
   allowedHeaders: "Content-Type,Authorization"  // Allowed headers
@@ -20,7 +20,7 @@ app.use(cors({
 
 // Save Task Endpoint
 app.post("/save-task", async (req, res) => {
-  const { date, task, status } = req.body;
+  const { date, task, status, player} = req.body;
 
   // Only check for date and task; status may be false
   if (!date || !task) {
@@ -33,7 +33,8 @@ app.post("/save-task", async (req, res) => {
     // Store tasks as objects with task and status properties
     let taskItem = {
         task: task,
-        status: status
+        status: status,
+        player: player
     };
     tasks.push(taskItem);
     await client.set(`task:${date}`, JSON.stringify(tasks));
@@ -49,8 +50,6 @@ app.get('/get-tasks/:date', async (req, res) => {
   try {
     let tasks = await client.get(`task:${date}`);
     tasks = tasks ? JSON.parse(tasks) : [];
-    // Convert any old string entries into objects
-    tasks = tasks.map(t => (typeof t === "string" ? { task: t, status: false } : t));
     res.json({ date, tasks });
   } catch (err) {
     res.status(500).json({ error: "Error fetching tasks", details: err });
