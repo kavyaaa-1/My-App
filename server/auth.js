@@ -10,20 +10,29 @@ const router = express.Router(); //mini app
 router.post("/login", async(req, res) => {
   const {username, password} = req.body;
 
-  try{
+  try {
     const userData = await client.get(`user:${username}`);
-    if(!userData) return res.status(401).json({message:"User not found"});
+  
+    if (!userData) return res.status(401).json({ message: "User not found" });
     const user = JSON.parse(userData);
-    if(!bcrypt.compareSync(password, user.password)){
-      return res.status(401).json({message: "Invalid password"});
+  
+    if (!user.password) {
+      return res.status(500).json({ message: "User data corrupted: Password missing" });
     }
-    const token = jwt.sign({ username }, process.env.JWT_SECRET, {expiresIn: "15d"});
-    res.cookie("token", token, { httpOnly: true, secure: true, sameSite: "None;Secure" });
+  
+    if (!bcrypt.compareSync(password, user.password)) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+  
+    const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: "15d" });
+    res.cookie("token", token, { httpOnly: true, secure: true, sameSite: "None" });
     res.json({ message: "Login successful", username });
-
-  }catch(err){
-    res.status(500).json({ error: "Error in login", details: err });
+  
+  } catch (err) {
+    console.error("Login Error:", err);
+    res.status(500).json({ error: "Error in login", details: err.message });
   }
+  
 });
 
 router.get("/check-auth", (req, res) => {

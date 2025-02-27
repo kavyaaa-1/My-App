@@ -288,22 +288,6 @@ input:checked + .slider:before {
   transform: scale(1.1);
 }
 
-/* Popup Container (Hidden by Default) */
-/* .popup {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  padding: 20px;
-  text-align: center;
-  z-index: 1000;
-}
-
 /* Popup Content */
 /* 🔲 Overlay - Background dim effect */
 .popup-overlay {
