@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   generateCalendar(); 
   await loadNavBar(); 
   displayDate();
+  showPopup();
 });
 document.getElementById("toggle-tasks").addEventListener("change", function () {
   generateCalendar(); 
@@ -19,67 +20,6 @@ async function checkLoginStatus() {
       window.location.href = "index.html";
   }
 }
-
-// Function to display tasks on the UI
-// function displayTasks(day, taskText, status) {
-//   const taskList = document.getElementById(`tasks-${day}`);
-
-//   // Create container for the task
-//   const taskDiv = document.createElement("div");
-//   taskDiv.classList.add("task-item");
-
-//   // Create checkbox icon (using image here)
-//   const checkbox = document.createElement("img");
-//   checkbox.src = status ? "./images/checked_icon.png" : "./images/unchecked_icon.png";
-//   checkbox.alt = status ? "Complete Task" : "Incomplete Task";
-//   checkbox.classList.add("task-icon");
-
-//   // Create the span for task text
-//   const taskSpan = document.createElement("span");
-//   taskSpan.textContent = taskText;
-//   if (status) taskSpan.classList.add("completed");
-
-//   // Event listener for toggling task completion
-//   checkbox.addEventListener("click", async function () {
-//     status = !status; // Toggle state
-//     checkbox.src = status ? "./images/checked_icon.png" : "./images/unchecked_icon.png";
-//     taskSpan.classList.toggle("completed", status);
-
-//     // Compute the date string in the same format used when saving the task
-//     const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
-
-//     // Update task completion in backend using PATCH
-//     await fetch("http://127.0.0.1:5000/update-task", {
-//       method: "PATCH",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ date, task: taskText, status }),
-//     });
-//   });
-
-//   const deleteBtn = document.createElement("img");
-//   deleteBtn.src = "./images/remove_icon.png";
-//   deleteBtn.alt = "Delete Task";
-//   deleteBtn.classList.add("task-icon", "delete-btn");
-//   deleteBtn.addEventListener("click", async function () {
-//     const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
-//     const response = await fetch("http://127.0.0.1:5000/delete-task", {
-//       method: "DELETE",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ date, task: taskText }),
-//     });
-//     if (response.ok) {
-//         taskDiv.remove();
-//       } else {
-//         alert("Failed to delete task");
-//       } // Remove task from UI
-//   });
-
-//   // Append elements to task container
-//   taskDiv.appendChild(checkbox);
-//   taskDiv.appendChild(taskSpan);
-//   taskDiv.appendChild(deleteBtn);
-//   taskList.appendChild(taskDiv);
-// }
 
 function displayTasks(day, taskText, status, taskOwner) {
   const player = localStorage.getItem("username"); 
@@ -185,19 +125,6 @@ async function addTask(day) {
   }
 }
 
-// Function to load tasks for a day
-// async function loadTasks(day) {
-//   const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
-  
-//   const response = await fetch(`http://127.0.0.1:5000/get-tasks/${date}`);
-//   const data = await response.json();
-//   const taskList = document.getElementById(`tasks-${day}`); 
-//   taskList.innerHTML = ""; // Clear previous tasks
-//   // Ensure we use each task object's properties correctly
-//   data.tasks.forEach(taskObj => {
-//     displayTasks(day, taskObj.task, taskObj.status);
-//   });
-// }
 async function loadTasks(day) {
   const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${day}`;
   const player = localStorage.getItem("username"); // Get current user
@@ -307,18 +234,7 @@ function showPopup() {
   popup.id = "celebration-popup";
   popup.classList.add("popup");
 
-  const messages = [
-    "🔥 Both of you actually finished everything? Who are you and what have you done with my humans? 🤯",
-    "🚀 Mission accomplished! Now, who's making the snacks? 🍕",
-    "🏆 Productivity power couple unlocked! 😎",
-    "💯 No more tasks left?! Okay, who's hacking the system? 🧐",
-    "🎭 You both worked hard! Now go argue over AUR BTA. 🍿",
-    "🤝 Dynamic duo strikes again! Are you sure you're not superheroes? 🦸‍♂️🦸‍♀️",
-    "🛑 STOP! You’re making the rest of us look bad. Take a break! 😆",
-    "🎯 Boom! Productivity on max level. Now, let’s pretend we did this effortlessly. 😎",
-    "🎶 ‘Cause you had a productive daaaay… and it feeeeels so good! 🎵",
-    "🍕 Task completion achieved. Now, pizza or ice cream? Kya dila rahe ho? 😏"
-  ];
+  const messages = JSON.parse(window.__ENV__.MESSAGES  || '["🎉 We did it!!"]');
 
   let randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
@@ -327,7 +243,7 @@ function showPopup() {
   <div class="popup-content">
       <h2>Everything done !!</h2>
       <p>${randomMessage}</p>
-      <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXZld3N3Yzg1OW5pYzZ2ZTg4dDhudnRlc2NjYzhnampiNWwwMDVpZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/P5CaMAKnBwZgBEOlij/giphy.gif" alt="Celebration GIF">
+      <img src="./images/celebration.gif" alt="Celebration GIF">
       <div class="popup-button-container">
           <button id="close-popup">Awesome</button>
       </div>
@@ -373,7 +289,6 @@ async function checkTaskCompletion(date) {
 
       // Check if all tasks are completed
       let allCompleted = data.tasks.every(task => task.status === true);
-
       if (allCompleted) {
           console.log("All today's tasks completed!");
           let today = new Date().toISOString().split("T")[0];
