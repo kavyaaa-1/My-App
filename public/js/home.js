@@ -219,7 +219,7 @@ async function loadTasks(day) {
   const today = new Date();
   const todayDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
   if (date === todayDate) {
-    setTimeout(() => checkTaskCompletion(day), 500); // Slight delay to allow DOM update
+    setTimeout(() => checkTaskCompletion(date), 500); // Slight delay to allow DOM update
   }
   // Update the toggle label text
   document.getElementById("toggle-label").textContent = showMine ? "My Tasks" : "Other's Tasks";
