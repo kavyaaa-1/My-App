@@ -173,6 +173,12 @@ input:checked + .slider:before {
   color: rgb(190, 188, 188);
 }
 
+.today {
+  border-color: #c1ddf6;
+  border-width: 3px;
+  border-style: solid;
+}
+
 /* Disabled Input and Button for Past Dates */
 .past-date .task-input,
 .past-date .add-btn {

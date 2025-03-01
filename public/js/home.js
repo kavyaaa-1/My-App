@@ -1,7 +1,7 @@
 import { loadNavBar, displayDate } from "./common.js";
 
 document.addEventListener("DOMContentLoaded", async function() {
-  // checkLoginStatus();
+  checkLoginStatus();
   generateCalendar(); 
   await loadNavBar(); 
   displayDate();
@@ -173,7 +173,7 @@ async function addTask(day) {
     });
     
     if (response.ok) {
-      displayTasks(day, taskText, false);
+      displayTasks(day, taskText, false, player);
       taskInput.value = ""; // Clear input after adding task
       let today = new Date().toISOString().split("T")[0];
       localStorage.removeItem("popup-shown-" + today);
@@ -262,7 +262,9 @@ function generateCalendar() {
     
     // Mark past dates visually if needed
     const date = new Date(year, month, i);
-    if (date < now) {
+    if(date.getTime() == now.getTime()){
+      div.classList.add("today");
+    }else if (date < now) {
       div.classList.add("past-date");
     }
 
@@ -358,24 +360,30 @@ function showPopup() {
 }
 
 // Function to check if all tasks are completed
-function checkTaskCompletion(date) {
+async function checkTaskCompletion(date) {
   console.log("Checking if all today's tasks are completed...");
-  
-  let tasks = document.querySelectorAll(`#tasks-${date} .task-item`); 
-  console.log(tasks);
-  if (tasks.length === 0) return; // If no tasks today, do nothing
 
-  let allCompleted = Array.from(tasks).every(task => 
-    task.querySelector("span").classList.contains("completed")
-  );
+  try {
+      // Fetch tasks from the backend
+      let response = await fetch(`https://planit-backend-drmi.onrender.com/get-tasks/${date}`);
+      let data = await response.json();
+      console.log("Fetched tasks:", data);
 
-  if (allCompleted) {
-    console.log("All today's tasks completed!");
-    let today = new Date().toISOString().split("T")[0];
-    let popupShown = localStorage.getItem("popup-shown-" + today);
+      if (!data.tasks || data.tasks.length === 0) return; // No tasks today
 
-    if (!popupShown) {
-      showPopup();
-    }
+      // Check if all tasks are completed
+      let allCompleted = data.tasks.every(task => task.status === true);
+
+      if (allCompleted) {
+          console.log("All today's tasks completed!");
+          let today = new Date().toISOString().split("T")[0];
+          let popupShown = localStorage.getItem("popup-shown-" + today);
+
+          if (!popupShown) {
+              showPopup();
+          }
+      }
+  } catch (error) {
+      console.error("Error fetching tasks:", error);
   }
 }
