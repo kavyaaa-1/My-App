@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", async function() {
   generateCalendar(); 
   await loadNavBar(); 
   displayDate();
-  showPopup();
 });
 document.getElementById("toggle-tasks").addEventListener("change", function () {
   generateCalendar(); 
