@@ -234,7 +234,7 @@ function showPopup() {
   popup.id = "celebration-popup";
   popup.classList.add("popup");
 
-  const messages = JSON.parse(window.__ENV__.MESSAGES  || '["🎉 We did it!!"]');
+  const messages = JSON.parse(process.env.MESSAGES  || '["🎉 We did it!!"]');
 
   let randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
@@ -302,3 +302,4 @@ async function checkTaskCompletion(date) {
       console.error("Error fetching tasks:", error);
   }
 }
+
