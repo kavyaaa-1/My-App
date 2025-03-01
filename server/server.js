@@ -110,6 +110,15 @@ app.delete("/delete-task", async (req, res) => {
       }
 })
 
+// Get PopUp Messages Endpoint
+app.get('/get-messages', async (req, res) => {
+  try {
+    const messages = JSON.parse(process.env.MESSAGES || '["Yay! We did it 😎💕"]');
+    res.json({ messages });
+  } catch (err) {
+    res.status(500).json({ error: "Error fetching messages", details: err });
+  }
+});
 
 // const loginLimiter = rateLimit({
 //   windowMs: 15 * 60 * 1000, // 15 minutes window

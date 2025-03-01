@@ -220,8 +220,13 @@ function generateCalendar() {
   });
 }
 
+async function fetchMessages() {
+  const response = await fetch("https://planit-backend-drmi.onrender.com/get-messages");
+  const data = await response.json();
+  return data.messages;
+}
 
-function showPopup() {
+async function showPopup() {
   console.log("Showing popup...");
 
   // Create overlay
@@ -234,7 +239,7 @@ function showPopup() {
   popup.id = "celebration-popup";
   popup.classList.add("popup");
 
-  const messages = JSON.parse(process.env.MESSAGES  || '["🎉 We did it!!"]');
+  const messages = await fetchMessages();
 
   let randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
